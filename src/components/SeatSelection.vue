@@ -33,11 +33,18 @@
         <div v-for="(row, rowIndex) in seatSchema" :key="rowIndex" class="seat-row">
           <div
               v-for="seat in row"
-              :key="seat ? seat.id : rowIndex + '-' + $index"
+              :key="seat ? seat.id : rowIndex + '-' + Math.random()"
               class="seat"
-              :class="{ recommended: seat && seat.isRecommended, occupied: seat && seat.isBooked }"
+              :class="{
+              recommended: seat && seat.isRecommended,
+              occupied: seat && seat.isBooked,
+            }"
           >
-            {{ seat && seat.label ? seat.label : (seat ? seat.row + '-' + seat.column : '') }}
+            <div v-if="seat" class="seat-content">
+              <div class="seat-label">{{ seat.label ? seat.label : seat.row + '-' + seat.column }}</div>
+              <div class="seat-price">{{ seat.price }} €</div>
+              <div v-if="seat.extraLegroom" class="seat-legroom">legroom</div>
+            </div>
           </div>
         </div>
       </div>
@@ -69,7 +76,7 @@ export default {
         const response = await flightService.getSeatSchemaWithRecommendations(this.airplaneId, this.criteria);
         this.seatSchema = response.data;
       } catch (error) {
-        console.error('Ошибка при получении схемы сидений', error);
+        console.error('Error fetching schema', error);
       }
     }
   },
@@ -95,9 +102,31 @@ export default {
   height: 40px;
   border: 1px solid #000;
   margin: 2px;
-  text-align: center;
-  line-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #181818;
+}
+
+.seat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.seat-label {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.seat-price {
+  font-size: 10px;
+  line-height: 1.1;
+}
+.seat-legroom {
+  font-size: 7px;
+  line-height: 1.1;
 }
 
 .recommended {
